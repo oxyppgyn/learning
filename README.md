@@ -1,2 +1,2 @@
 # Learning
-A place to put all of my coding/CS related learning stuff.
+A place to put all of my GIS/CS related learning stuff.
