@@ -1,0 +1,463 @@
+# Northwest Air
+
+## Problem to Solve
+
+Time to head west! The United States’s “Pacific Northwest” is a northwest region including the states of Oregon, Washington, and Northern Idaho. The region’s cooler temperatures and cloudy skies attract athletes and outdoor adventurers of all kinds. Recently, though, the increasing [prevalence of wild fires](https://www.nbcnews.com/news/us-news/seattle-portland-worlds-worst-air-quality-wildfires-rcna53166) has threatened the region’s once pristine air quality.
+
+In this problem, in a file called `air.R` in a folder called `air`, you’ll learn about indicators of air quality and use R to analyze common air pollutants in the state of Oregon.
+
+## Specifications
+
+### [**`1.R`**](https://cs50.harvard.edu/r/2024/psets/4/air/#1r)
+
+In `1.R`, read `air.csv` into a tibble called `air`, renaming and selecting the columns you need. In particular, ensure the `air` tibble includes only the following columns:
+
+-   **state**, renamed from **State**
+
+-   **county**, renamed from **State-County**
+
+-   **pollutant**, renamed from **POLLUTANT**
+
+-   **emissions**, renamed from **Emissions (Tons)**
+
+-   **level_1**, renamed from **SCC LEVEL 1**
+
+-   **level_2**, renamed from **SCC LEVEL 2**
+
+-   **level_3**, renamed from **SCC LEVEL 3**
+
+-   **level_4**, renamed from **SCC LEVEL 4**
+
+Save the resulting `air` tibble, using `save`, in a file called `air.RData`. You’ll use this tibble in the remaining `.R` files.
+
+### [**`2.R`**](https://cs50.harvard.edu/r/2024/psets/4/air/#2r)
+
+To sustainably improve air quality, analysts often focus their efforts on particular sources of pollutants. To identify which sources might need the most attention, find the largest sources of pollutants in Oregon.
+
+In `2.R`, load the `air` tibble from `air.RData` with `load`. Update the tibble by sorting all rows by the **emissions** column, highest value to lowest.
+
+Save the resulting `air` tibble, using `save`, in a file called `2.RData`.
+
+### [**`3.R`**](https://cs50.harvard.edu/r/2024/psets/4/air/#3r)
+
+In addition to focusing on the largest sources of pollutants, analysts might focus on particular geographic regions. Choose one of the counties in Oregon from [this list](https://en.wikipedia.org/wiki/List_of_counties_in_Oregon). Find all sources of pollutants in that county.
+
+In `3.R`, load the `air` tibble from `air.RData` with `load`. Transform the tibble so that it only includes data for the county of your choice.
+
+Save the resulting `air` tibble, using `save`, in a file called `3.RData`.
+
+### [**`4.R`**](https://cs50.harvard.edu/r/2024/psets/4/air/#4r)
+
+Combine your analyses from `2.R` and `3.R`.
+
+In `4.R`, load the `air` tibble from `air.RData` with `load`. Transform the tibble so that it only includes data for the county of your choice and sorts the data by the **emissions** column, highest value to lowest.
+
+Save the resulting `air` tibble, using `save`, in a file called `4.RData`.
+
+### [**`5.R`**](https://cs50.harvard.edu/r/2024/psets/4/air/#5r)
+
+So far, you’ve identified the largest sources of pollutants across the entire state of Oregon, as well as within a single county. Now, find the single largest pollutant source for each county.
+
+In `5.R`, load the `air` tibble from `air.RData` with `load`. Transform the tibble so that it includes the single row with the highest value in the **emissions** column for each county.
+
+Save the resulting `air` tibble, using `save`, in a file called `5.RData`.
+
+### [**`6.R`**](https://cs50.harvard.edu/r/2024/psets/4/air/#6r)
+
+Some pollutants tend to be emitted at higher rates than others. For each pollutant, find its total emissions across the entire state of Oregon.
+
+In `6.R`, load the `air` tibble from `air.RData` with `load`. Summarize the data in the tibble to find the total emissions for each pollutant. Sort the pollutants from highest to lowest emissions.
+
+The resulting tibble should have two columns, one called **pollutant** and one called **emissions**. For example:
+
++----------------------------+
+| **pollutant**              |
+|                            |
+| Carbon Monoxide            |
+|                            |
+| **emissions**              |
+|                            |
+| 8070435                    |
++----------------------------+
+| **pollutant**              |
+|                            |
+| Volatile Organic Compounds |
+|                            |
+| **emissions**              |
+|                            |
+| 2368213                    |
++----------------------------+
+| **pollutant**              |
+|                            |
+| PM10 Primary (Filt + Cond) |
+|                            |
+| **emissions**              |
+|                            |
+| 1266915                    |
++----------------------------+
+| **pollutant**              |
+|                            |
+| …                          |
+|                            |
+| **emissions**              |
+|                            |
+| …                          |
++----------------------------+
+
+Save the resulting `air` tibble, using `save`, in a file called `6.RData`.
+
+### [**`7.R`**](https://cs50.harvard.edu/r/2024/psets/4/air/#7r)
+
+In professional air quality reports, analysts will often calculate total emissions for broad categories of sources. In fact, the **level_1** column in the `air` tibble lists the broad category in which a specific source is included! For each category of source in **level_1**, calculate the total emissions of each pollutant.
+
+**Want to learn more about these categories?**
+
+-   
+
+-   
+
+-   
+
+-   
+
+-   
+
+-   
+
+-   
+
+-   
+
+In `7.R`, load the `air` tibble from `air.RData` with `load`. Transform the tibble to find the total emissions of each pollutant from each of the **level_1** source categories. Sort the rows first alphabetically by source name, then alphabetically by pollutant name.
+
+The resulting tibble should have three columns, one called **source**, one called **pollutant**, and one called **emissions**. For example:
+
++----------------------------+
+| **source**                 |
+|                            |
+| Industrial Processes       |
+|                            |
+| **pollutant**              |
+|                            |
+| Carbon Monoxide            |
+|                            |
+| **emissions**              |
+|                            |
+| 1460                       |
++----------------------------+
+| **source**                 |
+|                            |
+| Industrial Processes       |
+|                            |
+| **pollutant**              |
+|                            |
+| Nitrogen Oxides            |
+|                            |
+| **emissions**              |
+|                            |
+| 9.96                       |
++----------------------------+
+| **source**                 |
+|                            |
+| Miscellaneous Area Sources |
+|                            |
+| **pollutant**              |
+|                            |
+| Ammonia                    |
+|                            |
+| **emissions**              |
+|                            |
+| 161756                     |
++----------------------------+
+| **source**                 |
+|                            |
+| Miscellaneous Area Sources |
+|                            |
+| **pollutant**              |
+|                            |
+| Carbon Monoxide            |
+|                            |
+| **emissions**              |
+|                            |
+| 7385998                    |
++----------------------------+
+| **source**                 |
+|                            |
+| …                          |
+|                            |
+| **pollutant**              |
+|                            |
+| …                          |
+|                            |
+| **emissions**              |
++----------------------------+
+
+Save the resulting `air` tibble, using `save`, in a file called `7.RData`.
+
+## Answer
+
+```{r}
+
+```
+
+# Zeruda no Densetsu
+
+## Problem to Solve
+
+You’ve just been hired as a game historian for [Nintendo](https://www.nintendo.com/us/), the Japanese multinational video game company. Your first job is to organize an old data file that details the history of *Zeruda no Densetsu* ([*The Legend of Zelda*](https://zelda.nintendo.com/)), one of the company’s most popular game series.
+
+In a file called `zelda.R`, in a folder called `zelda`, tidy up some data on the history of *The Legend of Zelda* and use it to answer questions about the series.
+
+## Specifications
+
+In this problem, you’ll use each of the included `.R` files to take one step in your analysis of the given data.
+
+### [**`1.R`**](https://cs50.harvard.edu/r/2024/psets/4/zelda/#1r)
+
+In `1.R`, organize the data in `zelda.csv` to get it ready for analysis. Save the cleaned data as a tibble named `zelda` in `zelda.RData`.
+
+Make sure the tibble follows these tidy data rules:
+
+-   Each row should be one release of a *The Legend of Zelda* game.
+
+    -   Keep in mind, a single game is often released multiple times on different systems.
+
+-   Each column should be one way a release can differ.
+
+    -   For example, releases can differ based on release year, system, or the people involved in making it.
+
+-   Each cell should be a single piece of information.
+
+The first few rows of the tibble should look like the below. The tibble should include only the following columns. Capitalization of column names does matter!
+
++----------------------------------------------+
+| **title**                                    |
+|                                              |
+| The Legend of Zelda                          |
+|                                              |
+| **year**                                     |
+|                                              |
+| 1986                                         |
+|                                              |
+| **system**                                   |
+|                                              |
+| Famicom Disk System                          |
+|                                              |
+| **directors**                                |
+|                                              |
+| Shigeru Miyamoto, Takashi Tezuka             |
+|                                              |
+| **producers**                                |
+|                                              |
+| Shigeru Miyamoto                             |
+|                                              |
+| **designers**                                |
+|                                              |
+| Shigeru Miyamoto, Takashi Tezuka             |
+|                                              |
+| **programmers**                              |
+|                                              |
+| Toshihiko Nakago, Yasunari Soejima, I. Marui |
+|                                              |
+| **writers**                                  |
+|                                              |
+| Takashi Tezuka, Keiji Terui                  |
+|                                              |
+| **composers**                                |
+|                                              |
+| Koji Kondo                                   |
+|                                              |
+| **artists**                                  |
+|                                              |
+| NA                                           |
++----------------------------------------------+
+| **title**                                    |
+|                                              |
+| The Legend of Zelda                          |
+|                                              |
+| **year**                                     |
+|                                              |
+| 1987                                         |
+|                                              |
+| **system**                                   |
+|                                              |
+| Nintendo Entertainment System                |
+|                                              |
+| **directors**                                |
+|                                              |
+| Shigeru Miyamoto, Takashi Tezuka             |
+|                                              |
+| **producers**                                |
+|                                              |
+| Shigeru Miyamoto                             |
+|                                              |
+| **designers**                                |
+|                                              |
+| Shigeru Miyamoto, Takashi Tezuka             |
+|                                              |
+| **programmers**                              |
+|                                              |
+| Toshihiko Nakago, Yasunari Soejima, I. Marui |
+|                                              |
+| **writers**                                  |
+|                                              |
+| Takashi Tezuka, Keiji Terui                  |
+|                                              |
+| **composers**                                |
+|                                              |
+| Koji Kondo                                   |
+|                                              |
+| **artists**                                  |
+|                                              |
+| NA                                           |
++----------------------------------------------+
+| **title**                                    |
+|                                              |
+| The Legend of Zelda                          |
+|                                              |
+| **year**                                     |
+|                                              |
+| 2003                                         |
+|                                              |
+| **system**                                   |
+|                                              |
+| GameCube                                     |
+|                                              |
+| **directors**                                |
+|                                              |
+| Shigeru Miyamoto, Takashi Tezuka             |
+|                                              |
+| **producers**                                |
+|                                              |
+| Shigeru Miyamoto                             |
+|                                              |
+| **designers**                                |
+|                                              |
+| Shigeru Miyamoto, Takashi Tezuka             |
+|                                              |
+| **programmers**                              |
+|                                              |
+| Toshihiko Nakago, Yasunari Soejima, I. Marui |
+|                                              |
+| **writers**                                  |
+|                                              |
+| Takashi Tezuka, Keiji Terui                  |
+|                                              |
+| **composers**                                |
+|                                              |
+| Koji Kondo                                   |
+|                                              |
+| **artists**                                  |
+|                                              |
+| NA                                           |
++----------------------------------------------+
+| **title**                                    |
+|                                              |
+| …                                            |
+|                                              |
+| **year**                                     |
+|                                              |
+| …                                            |
+|                                              |
+| **system**                                   |
+|                                              |
+| …                                            |
+|                                              |
+| **directors**                                |
+|                                              |
+| …                                            |
+|                                              |
+| **producers**                                |
+|                                              |
+| …                                            |
+|                                              |
+| **designers**                                |
+|                                              |
+| …                                            |
+|                                              |
+| **programmers**                              |
+|                                              |
+| …                                            |
+|                                              |
+| **writers**                                  |
+|                                              |
+| …                                            |
+|                                              |
+| **composers**                                |
+|                                              |
+| …                                            |
+|                                              |
+| **artists**                                  |
+|                                              |
+| …                                            |
++----------------------------------------------+
+
+Notice how the tibble follows the principles of tidy data:
+
+-   Each row is a release.
+
+-   Each column is information about a release.
+
+-   Each cell is a single piece of information.
+
+A list of names can count as “a single piece of information” for this problem’s purposes.
+
+Save the resulting `zelda` tibble, using `save`, in a file named `zelda.RData`. You’ll use this tibble in the remaining `.R` files.
+
+**Hint**
+
+### [**`2.R`**](https://cs50.harvard.edu/r/2024/psets/4/zelda/#2r)
+
+Your first assignment is to summarize the number of Zelda releases in each year.
+
+In `2.R`, load the tidied `zelda` tibble from `zelda.RData` with `load`. Update the tibble by summarizing the number of releases in each year. Sort the rows by the number of releases in a given year, most to least.
+
+The tibble should have two columns:
+
++--------------+
+| **year**     |
+|              |
+| …            |
+|              |
+| **releases** |
+|              |
+| …            |
++--------------+
+
+Save the resulting `zelda` tibble, using `save`, in a file named `2.RData`.
+
+### [**`3.R`**](https://cs50.harvard.edu/r/2024/psets/4/zelda/#3r)
+
+Your next assignment is to identify the original (first) release for each Zelda title.
+
+In `3.R`, load the tidied `zelda` tibble from `zelda.RData` with `load`. Update the tibble so that it includes only the first release(s) for each Zelda title. If a title had two different releases in its first year (perhaps for two different systems), include both.
+
+Sort the releases by year, from oldest to newest. If any two releases have the same year, sort them alphabetically by title, followed by system.
+
+Save the resulting `zelda` tibble, using `save`, in a file named `3.RData`.
+
+### [**`4.R`**](https://cs50.harvard.edu/r/2024/psets/4/zelda/#4r)
+
+Your next assignment is to help commemorate the work of [Shigeru Miyamoto](https://en.wikipedia.org/wiki/Shigeru_Miyamoto), one of the original creators of the Zelda series.
+
+In `4.R`, load the tidied `zelda` tibble from `zelda.RData` with `load`. Update the tibble so that that it includes only the original releases for all titles on which Shigeru Miyamoto was a producer. If any title had two different releases in its first year (perhaps for two different systems), include both.
+
+Sort the releases by year, from oldest to newest. If any two releases have the same year, sort them alphabetically by title, followed by system.
+
+Save the resulting `zelda` tibble, using `save`, in a file named `4.RData`.
+
+### [**`5.R`**](https://cs50.harvard.edu/r/2024/psets/4/zelda/#5r)
+
+As Nintendo expands its leadership team, your final assignment is to identify the original releases for all titles with more than 1 producer.
+
+In `5.R`, load the tidied `zelda` tibble from `zelda.RData` with `load`. Update the tibble to include only the first release(s) for each title with more than 1 producer. If such a title had two different releases in its first year (perhaps for two different systems), include both.
+
+Sort the releases by year, from oldest to newest. If any two releases have the same year, sort them alphabetically by title, followed by system.
+
+Save the resulting `zelda` tibble, using `save`, in a file named `5.RData`.
+
+## Answer
+
+```{r}
+
+```

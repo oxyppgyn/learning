@@ -1,0 +1,79 @@
+# Parked Out By the Lake
+
+## Problem to Solve
+
+In case youâ€™re wondering, Dean Summerwind is parked out by the lake, 80 miles from Santa Fe. â€œParked Out By The Lakeâ€ might sound like a normal song if you arenâ€™t paying attention. But it became [â€œthe country song you need to hearâ€](https://tasteofcountry.com/parked-out-by-the-lake-song-dean-summerwind/) for what youâ€™ll notice if you listen closely.
+
+With a visualization, you might notice thatâ€”unsurprisinglyâ€”the most frequently used word is â€œLake,â€ followed closely by â€œIâ€™m,â€ â€œParked,â€ â€œBy,â€ â€œOut,â€ and â€œThe.â€
+
+![Parked Out By The Lake Lyrics](https://cs50.harvard.edu/r/2024/psets/5/parked/img/parked.png)
+
+Visualizing the frequency of words in song lyrics can help you get a sense for a songâ€™s structure (and be just plain fun!). In `parked.R`, in a folder called `parked`, write a program to visualize the frequency of words in song lyrics of your choice.
+
+## Specifications
+
+In `parked.R`, write a program to read a `.txt` file of your choice in the `lyrics` folder. Donâ€™t like those songs? Create your own lyrics file! Sites like [genius.com](https://genius.com/) provide lyrics to most popular songs.
+
+Consider writing your program in 3 steps:
+
+1.  Open and clean a lyrics file of your choice, splitting the file into a vector of individual words.
+
+2.  Convert the vector of words into a data frame that includes each word and the number of times it appears.
+
+3.  Visualize the data frame using the ggplot2 package.
+
+Ready? Letâ€™s get started.
+
+### [**Reading and Cleaning Lyric Files**](https://cs50.harvard.edu/r/2024/psets/5/parked/#reading-and-cleaning-lyric-files)
+
+Your program should read a lyrics file of your choice from the `lyrics` folder. To read a `.txt` file, consider using the [`read_file`](https://readr.tidyverse.org/reference/read_file.html) function in the readr package, part of the tidyverse.
+
+Your lyrics file will likely need to be cleaned. Consider how you could use functions from the [stringr package](https://stringr.tidyverse.org/reference/index.html) to clean up your data. As much as possible, try to eliminate stylistic inconsistencies between words that are otherwise the sameâ€”such as capitalization or the presence of punctuation.
+
+Finally, split your lyric file into a vector of individual words. Here too, consider what the [stringr package](https://stringr.tidyverse.org/reference/index.html) might offer.
+
+### [**Summarizing Lyrics**](https://cs50.harvard.edu/r/2024/psets/5/parked/#summarizing-lyrics)
+
+With a vector individual words, consider transforming your vector into a data frame of two columns:
+
++---------------+
+| **word** â€¦  |
+|               |
+| **count** â€¦ |
++---------------+
+
+The **word** column could, for instance, contain the unique words present in your lyrics while **count** includes the count of each of those lyrics.
+
+### [**Visualizing Lyrics**](https://cs50.harvard.edu/r/2024/psets/5/parked/#visualizing-lyrics)
+
+With a data frame of words and their frequency, use the [`ggplot`](https://ggplot2.tidyverse.org/reference/ggplot.html) function to plot the lyrics. Save your resulting plot as a file named `lyrics.png` using [`ggsave`](https://ggplot2.tidyverse.org/reference/ggsave.html).
+
+## Answer
+
+```{r}
+
+```
+
+# Exploratory Data Analysis
+
+## Problem to Solve
+
+Exploratory data analysis (EDA) is a method used by data scientists to find interesting characteristics of data and test hypotheses. It’s often one of the initial steps a researcher might take in a larger data analysis program.
+
+You now have many of the tools you need to perform your own exploratory data analysis! In a program called `eda.R`, in a folder called `eda`, write a program to visualize and explore a data set of your choice.
+
+## Specifications
+
+The only requirement for this problem is that you produce a visualization you care about, that is interesting to you, and that you feel proud of. Oh, and that you save the visualization in a file called `visualization.png`!
+
+You might find it helpful to get a bit of inspiration:
+
+-   [How the BBC Visual and Data Journalism team works with graphics in R](https://medium.com/bbc-visual-and-data-journalism/how-the-bbc-visual-and-data-journalism-team-works-with-graphics-in-r-ed0b35693535)
+
+-   [The R Graph Gallery](https://r-graph-gallery.com/)
+
+## Answer
+
+```{r}
+
+```

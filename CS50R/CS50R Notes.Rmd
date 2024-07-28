@@ -1,0 +1,1289 @@
+---
+title: "CS50R Notes"
+output: html_notebook
+---
+
+# 1: Representing Data
+
+Creating a file can be done with `file.create()`. This creates a new file in the working directory, a single folder that R uses as its location to store files and generally--work within.For that sake of these notes, new files will not be created for most sections.
+
+```{r}
+file.create("hello.R")
+```
+
+## Introduction to Functions
+
+Functions allow you to do some process as a (usually) single line of code that otherwise would take large amounts of code to work. R comes with many built-in functions that can be used on their own; packages come with more built upon these (as well as functions written in other languages such as C); and you can create your own functions by combining built-in R functions. Below are two examples of functions: `print()` which essentially displays text to the console, and `setwd()` which sets the path of the working directory.
+
+```{r}
+print("Hello, World")
+setwd('~/R/CS50R')
+```
+
+Each function will also have a return value (though, sometimes when this isn't needed). The function `readline()` returns a value typed in the console in response to a particular prompt (similar to the Pythonic `input()` function). In R, the return value from a function can be assigned to a variable using `<-`, the typical assignment operator.
+
+Unlike other languages that often use `=`, R's typical assignment operator is very visually direct as to what it does. R does use the `=` operator for assignment, but this has some stipulations. R also uses `<<-` which also has some specific use restrictions, while also having right-facing versions both `<-` and `<<-` (`->`, `->>`), making a total of five assignment operators.
+
+Below is a basic function that takes a name input using `readline()` and prints it to the console with `print()`. Before doing this, the strings `Hello,` and the name input must be concatenated. Unlike Python, `+` cannot concatenate strings, instead the function `paste()` must be used. This function takes any number of strings and combines them with a separator. By default this is a space, but in this instance we don't want a separator and can use the `sep` argument to set the separator used to an empty string (a.k.a. nothing). `paste()` also has another version, `paste0()` which does not have a separator by default. Alternatively in this instance, you can remove the space from `Hello,` and keep the default `sep` value. `cat()` is another function that can concatenate strings, but rather than returning it to a variable, it write the concatenated string to the console.
+
+Note that functions can be "nested" within each other, below we've combined the `paste()` and `paste0()` functions with `print()` to avoid creating a new variable that would simply be given to print(). Below is also an example of nesting `readline(),` `paste()`, and `print()`.
+
+```{r}
+#Using paste()
+name <- readline(prompt = "What's Your Name? ")
+print(paste("Hello, ", name, sep = ""))
+```
+
+```{r}
+#Using paste0()
+name <- readline(prompt = "What's Your Name? ")
+print(paste0("Hello, ", name))
+```
+
+```{r}
+#Using cat()
+name <- readline(prompt = "What's Your Name? ")
+cat("Hello, ", name, sep = "")
+```
+
+```{r}
+#Fully Nested
+cat(paste("Hello, ", readline(prompt = "What's your name? "), sep = ""))
+```
+
+Above you'll also see `#`, which signifies a comment. These are useful for telling the user what your code actually does, as they aren't actually run with your code.
+
+## Using Arithmetic Operators
+
+R has basic arithmetic that can be used for numerical data. These include `+`, `-`, `*`, and `/` (as well as some others).
+
+Below, we use the `+` operator to print a total count of votes for three candidates in an election. It's important to note that the `+` operator cannot add non-number objects. Objects have specific datatype associated with them, which determines their behavior. `readline()` happens to return a "character" object, when we expected an "integer" object. Luckily, objects can have their datatype changed as long as the conversion is compatible. This is done using a group of functions (formatted as: `as.<datatype>()`). Below we will use the `as.integer()` function to convert each variable into integers before assigning them. An alternative to using the `+` operator below is the sum function, which can be useful for adding arrays of data rather than specific variables.
+
+```{r}
+#Get Counts from User
+mario <- as.integer(readline(prompt = "Enter Votes for Mario: "))
+peach <- as.integer(readline(prompt = "Enter Votes for Peach: "))
+bowser <- as.integer(readline(prompt = "Enter Votes for Bowser: "))
+
+#Calculate Total
+total <- mario + peach + bowser
+
+#Print
+print(paste("Total Votes:", total))
+
+#Inputs: Mario: 5, Peach: 4, Bowser: 3
+```
+
+While the code above works for this situation we currently have, it's usually beneficial to make your code adaptable to different situations. For example, what if the number of candidates changes? Rather than adding multiple new lines each time, you can instead write your code using a `for` loop and simply change a list of candidates.
+
+```{r}
+#List of Candidates
+candidates <- list("Mario","Peach","Bowser","Toad","Birdo")
+total <- 0
+
+#Iterate Through Candidates, Ask for Input, and Add to Count
+for (candidate in candidates) {
+  count <- as.integer(readline(paste("Enter Votes for",candidate,":")))
+  total <- total + count
+}
+
+#Print Output
+print(paste("Total Votes:", total))
+
+#Inputs: Mario: 5, Peach: 4, Bowser: 3, Toad: 2, Birdo: 1
+  
+```
+
+## Introduction to Getting & Using Data
+
+Data in R can take many forms, but most often is represented as tables. To store this data, the most common (and generally compatible) format for R is CSV (comma seperated values) files. For the table below, a CSV file would store the data with each row combined together with commas.
+
+| candidate | poll | mail |
+|-----------|------|------|
+| Mario     | 37   | 63   |
+| Peach     | 43   | 107  |
+| Bowser    | 84   | 36   |
+
+```         
+candidate,poll,mail
+Mario,37,63
+Peach,43,107
+Bowser,84,36
+```
+
+Now that we're moving from our previous count program to a new one, we will want to check that our workspace is clear of any previous variables to avoid any potential issues. To do this, we can check what variables are in our workspace using `ls()` which returns a list of variable names, then remove each with `rm()`. This is useful for removing specific variables while keeping others, but to clear all variables and get a fresh start, you can simply feed the return value of `ls()` into `rm()`. RStudio also has a button in the "Environment" pane (image of a broom) that clears your workspace as well.
+
+```{r}
+rm(list = ls())
+```
+
+Now that our environment is clear, we can use R to read a CSV file and get data to work with, rather than using user inputs. This can be done with `read.table()`, which uses file paths as an input. If your file is located within the working directory, you can use just the file name, but otherwise a full path is needed. For CSV files specifically, there is also a `read.csv()` function that can automatically parse a CSV file without additional arguments.
+
+When importing data you will usually get a specialized object called a data frame, which is the primary way of storing data within R. This is a specialized data structure within R that allows you to access data in unique ways and is also much faster than alternative methods of manipulating data.
+
+```{r}
+votes <- read.csv("data/votes.csv", sep = ",", header = TRUE)
+votes <- read.csv("data/votes.csv")
+View(votes)
+```
+
+To access specific rows and columns in data frames, you can use bracket notation `df[row, column]`. This allows you to put an index value (or range of values) for the column/row you want to access within this specific format. With this format, you can omit either the row or column to access all columns with a specific row or all rows with a specific column.
+
+```{r}
+#Get a List of Poll Numbers
+print(votes[,2])
+
+#Get the Poll Number for Mario
+print(votes[1,2])
+
+#Get a List of Poll Numbers for Mario and Peach
+print(votes[1:2,2])
+
+#Get a List of Mail Numbers
+print(votes[,3])
+```
+
+Although index values are sometimes used for accessing data, when manipulating data, you will often be adding, rearranging, and deleting columns, messing up your indices. Instead, it's often better to access columns and rows by name. This is done using `$` after a data frame, denoting that what follows is the name of a column/row within it.
+
+When accessing data this way, the result is a completely different object type from the data frame called a vector. These act similarly to lists in Python and represent an array of values, but a vector also requires all items within it to be in the same "storage mode", generally meaning of the same datatype.
+
+```{r}
+#Get a List of Poll Numbers
+print(votes$poll)
+
+#Get the Poll Number for Mario
+print(votes$poll[1])
+
+#Get a List of Poll Numbers for Mario and Peach
+print(votes$poll[1:2])
+
+#Get a List of Mail Numbers
+print(votes$mail)
+```
+
+Getting data in this way, allows you to quickly do functions such as `sum()` on entire sets of data within data frames.
+
+```{r}
+sum(votes$poll)
+sum(votes$mail)
+sum(votes$mail, votes$poll)
+```
+
+When dealing with vectors in R, you can also perform arithmetic functions on them. Unlike sum which combines the values of all values in the vectors into one value, arithmetic functions produce a new vector which is operated upon item-by-item. This resulting vector can then be added back to your data frame (or a new one) to be stored. For example, below we add a total vote count for each candidate to our data frame that combines poll and mail votes (we'll also print this resulting vector as well). Note that here you write to the data frame using `$` with the column you want to write to. It's possible to overwrite either the entire data frame or one of the columns if this notation isn't written correctly, so double check where you're assigning this new data.
+
+```{r}
+votes$total <- votes$poll + votes$mail
+print(votes$total_votes)
+```
+
+Now that we've manipulated our data some, we will want to save what we've done to a file to save for later. With CSVs being the most common way data is stored as files for R, we'll use `write.csv()` to write our data to a CSV file within our working directory. You can also do this in other locations using full file paths.
+
+When writing to CSVs, your row names are also added. Typically, these are just index values, so often its preferable to remove these using the `row.names` argument.
+
+```{r}
+write.csv(votes,"data/totals.csv", row.names = FALSE)
+```
+
+Often times, you'll end up working with data that others have created. For example, the organization FiveThirtyEight collects a lot of demographic data that can be used for individual analyses. `read.csv()` luckily can natively import data from the web, preventing the need to store common datasets locally while always using the latest version from its source. Below we import the non-voter data from FiveThirtyEight and due to how large this dataset is, also get a count of the number of rows using `nrow()` .
+
+```{r}
+url <- "https://github.com/fivethirtyeight/data/raw/master/non-voters/nonvoters_data.csv"
+voters <- read.csv(url)
+View(voters)
+
+ncol(voters)
+nrow(voters)
+
+```
+
+In this dataset, each row is a single respondent, with most of the columns representing responses to questions asked to each person. The answers are encoded as numbers rather than words. To interpret this data, we'll need to use the codebook provided by FiveThirtyEight to understand what each question was and what each response number indicates.
+
+For this instance, we'll be looking at a specific column "voter_category" which describes how each voter described themselves in terms of voting frequency. Because this is categorical data defined by FiveThirtyEight for respondents, one a finite number of values will be present in this column. To get a list of all the possible values, we can use the `unique()` function.
+
+```{r}
+unique(voters$voter_category)
+```
+
+Here we see that each voter fell into one of three: "always", "sporadic", and "rarely/never".
+
+Another column `Q22` includes responses to the following question:
+
+"You previously indicated that you are not currently registered to vote. Which of the following reasons best describes why you are not currently registered to vote?"
+
+The response values were as follows:
+
+1.  "I don't have time to register to vote"
+2.  "I don't trust the political system to serve my needs"
+3.  "I don't know how to register"
+4.  "I don't want to register"
+5.  "I am not eligible to vote"
+6.  "I don't think my vote matters"
+7.  "Other"
+
+For this question, a lot of values were `NA`. This means that there is no data for this particular question for this respondent. In R, `NA` is a special value meaning not available; there is not data available, but data could potentially exist in this location.
+
+Other special "no data" values in are include:
+
+-   `Inf` and `-Inf`, values so large or small they can't be represented.
+
+-   `NaN` , not a number.
+
+-   `NULL`, no data; absolutely nothing.
+
+```{r}
+unique(voters$Q22)
+```
+
+In this dataset, we can see that our data includes values 1-7, `NA`, as well as -1. Our respondents that were not registered to vote responded 1-7, those registered to vote were assigned `NA`, and then there are the -1 values. Based on the codebook, there isn't any value for -1 and this is likely just an error with inputting the data, but could also mean something like a person refusing to respond. Sometimes data is just messy, sometimes we can't interpret it. In this case, it would likely be best to simply omit -1 values if we aren't sure about what it means.
+
+With datasets like this, it can be very difficult to understand the data while its being represented in this type of format. Often, you'll want to use `factor()` to swap out values. `factor()` produces a list of "levels", which creates a list of unique values that are our categories. Using `factor()`, we can also add labels to these to make them less confusing.
+
+To do this, we'll use the `labels` argument that takes in a vector of labels corresponding to each unique value (except `NA`). To create the vector, we use `c()` (meaning combine) with a list of values in the same order as the values we originally had. This essentially maps the new values onto the old ones. Because our dataset has -1 values that we aren't sure what to do with, we can remove those with the `exclude` argument. Excluded values will not be removed from the dataset, and instead are given an `NA` value.
+
+```{r}
+factor(voters$Q21, 
+       labels = c("Yes", "No", "Unsure/Undecided"),
+       exclude = c(-1))
+```
+
+# 2: Transforming Data
+
+## Logical Expressions & Operators
+
+Another format other than CSV files that can be used are RData files. These are a specialized data format for R and as such are opened with a unique function, `load()`. RData files can also be created with a unique function, `save()`. Unlike CSV files which are entirely text, RData files are saved with their structure and are not visible as plain text in and editor.
+
+Here we have temperatures across a single month as a vector loaded from a RData file. In this vector, there are a few values that appear to be outliers. Specifically, the second, fourth, and seventh days appear to be the most extreme. To access all of these values, we can use `c()` to create a vector that can be passed as indices for the `temps` vector. To remove these values from the original vector, a minus (`-`) can be added before the indices.
+
+```{r}
+#Load Data
+load(paste0("data/temps.RData"))
+
+#Find Mean Temp
+mean(temps)
+
+#View in Output
+temps
+
+#Remove Outliers
+## Note: Not Assigned to a variable, so this is temporary
+temps[-c(2,4,7)]
+```
+
+To dynamically remove, get, or edit values, logical operators (`==`, `!=`, `<`, `>`, etc) can be used to compare values. When using logical operators, we get a Boolean value in response (`TRUE` or `FALSE`). Logical operators can be used with vectors and applied to each value, returning a vector of Boolean values.
+
+`which()` can be used with logical operators to get a vector of index values corresponding to any `TRUE` values (i.e., any that meet our condition).
+
+```{r}
+#Check if a Single Day is Less than 0 Degrees
+temps[1] < 0
+
+#Check if Any Days are Less than 0 Degrees
+temps < 0
+
+#Get Indices Of Days Less than 0 Degrees
+which(temps < 0)
+```
+
+With logical operators, there are also symbols that can be used to combine conditions. `&` can be used to return `TRUE` if both conditions are met, `|` can be used to return `TRUE` if either condition is met, and `…` [XXX]. These operators only work for vectors, so for single values the following are used: `&&`, `||`, `…`.
+
+Some other useful functions to know with these operators are `any()` which will return `TRUE` if any value in the resulting vector is `TRUE,` and `all()` which will return `TRUE` only if all the values in the resulting vector are `TRUE`.
+
+`!` is another important operator and essentially negates (think of it as "not") a logical operator.
+
+```{r}
+#Check if Any Temps are Below 0 or Above 60
+temps < 0 | temps > 60
+
+#Get Indices
+which(temps < 0 | temps > 60)
+
+#Check Get Single Value for Vector
+any(temps < 0 | temps > 60)
+all(temps < 0 | temps > 60)
+
+#Get a Vector of Outler Values with Operators
+## Note: which() is redundant, R can evaluate logical vectors as index inputs
+temps[which(temps < 0 | temps > 60)]
+temps[temps < 0 | temps > 60]
+
+#Get Only Non-Outliers
+temps[!temps < 0 | temps > 60]
+
+#Save to Variables
+no_outliers <- temps[!temps < 0 | temps > 60]
+outliers <- temps[temps < 0 | temps > 60]
+
+#Save to RData File
+save(no_outliers, file = 'data/no_outliers.RData')
+save(outliers, file = 'data/outliers.RData')
+```
+
+## Subsetting
+
+Often, you'll want to manipulate your data and analyze it based on certain variables. For example, with a dataset of chicks, their feed types, and weight, you may want to analyze the weight of chicks in relation to what type of feed they're given.
+
+```{r}
+#Import Data
+chicks <- read.csv(file = "data/chicks.csv")
+View(chicks)
+```
+
+In this dataframe, there are some chicks with `NA` weight values. For our analyses, we'll want to remove these values due to how they can affect certain operations. For example, using `mean()` to find the average weight of all chicks will return `NA` when used on the raw dataset. In the case of `mean()`, it has the argument `na.rm`, which specifies whether `NA` values should be ignored during calculation.
+
+To remove values permanently, we'll need to subset our data in some way. This can be done by passing logical expressions to the indices of a dataframe or by using `subset()`.
+
+```{r}
+#Average All Chicks
+mean(chicks$weight, na.rm = TRUE)
+
+#Average  Casein Diet Chicks
+##Using Indices
+mean(chicks[1:3,"weight"])
+
+##Using Subsets
+filter <- chicks$feed == "casein"
+caesin_chicks <- chicks[filter,]
+mean(caesin_chicks$weight, na.rm = TRUE)
+View(caesin_chicks)
+
+#Remove NAs with Logical Operators
+chicks_rm.na <- chicks[!is.na(chicks$weight),]
+
+#Remove NAs with Subset()
+chicks2_rm.na <- subset(chicks, !is.na(weight))
+
+View(chicks2)
+
+#Count NA Values
+## Note: TRUE ~= 1, so summing is.na() values ends up counting the number of NAs
+sum(is.na(chicks$weight))
+```
+
+After subsetting to remove `NA` values, the row names in our dataframe have gotten a bit messed up. Using `rownames()` we can get vector of all the row names in the dataset and in the subsetted version, there are multiple missing/skipped row values. Generally, it's best to have sequential row names, as these may be used for subsetting by index or other processes. To reset row names, we can assign `NULL` to the `rownames()` function, which will give it a new set of sequential values.
+
+```{r}
+#Show Row Names for Old and New Dataframe
+rownames(chicks)
+rownames(chicks2)
+
+#Reset Row Names
+rownames(chicks2) <- NULL
+rownames(chicks2)
+```
+
+## Menus
+
+R has the ability to allow inputs from the user directly from the terminal, which can be used to build dynamic ways to manipulate data. For example, below a menu is shown with all the feed types and prompts the user to choose one using its number. Because each of the `cat()` functions is not assigned to a variable, they get printed to the console and the feed choice is printed and given to a variable using `readline()` (functions like `input()` in Python. To print each option on its own line, we add `\n` to each option.
+
+```{r}
+chicks <- read.csv(file = "data/chicks.csv")
+chicks <- subset(chicks, !is.na(weight))
+
+#Get a Vector of Feed Options
+feed_options <- unique(chicks$feed)
+
+#Print to Console
+cat("1.", feed_options[1], "\n")
+cat("2.", feed_options[2], "\n")
+cat("3.", feed_options[3], "\n")
+cat("4.", feed_options[4], "\n")
+cat("5.", feed_options[5], "\n")
+cat("6.", feed_options[6], "\n")
+
+#Get User Choice (as int)
+feed_choice <- as.integer(readline("Feed type: "))
+```
+
+While this does work, it has some issues. For example, if your dataset has more or less than six options, this won't be effective. Below is a more robust version of the above code that dynamically updates based on the number of elements. To do this, we concatenate with `paste0()`, a vector with values from 1 to the length of our feed options vector, a period, then the feed options. We'll also print the user's choice.
+
+```{r}
+#Get Feed Options
+feed_options <- unique(chicks$feed)
+
+#Format Options
+formatted_options <- paste0(1:length(feed_options),". ", feed_options)
+cat(formatted_options, sep = "\n")
+
+#Get User Choice (as int)
+feed_choice <- as.integer(readline("Feed type: "))
+
+#Print Selected Option
+selected_feed <- feed_options[feed_choice]
+print(subset(chicks, feed == selected_feed))
+```
+
+This covers issues with having different data options, but what if the user messes up? Here, we're expecting the user to input a number within our range of options, but really she should assume a user won't actually do what we want 100% of the time. For this, conditionals are the solution.
+
+## Conditionals
+
+Conditionals essentially do comparisons between two objects to see if they're the same, similar, within a range of a value, etc. The main way conditions are used is with the `if`, `if else` and `else` keywords. These are mostly self explanatory: `if` checks if the condition specified is `TRUE` and if it is, runs its block of code, `else if` works the same but will only be tried if the previous `if` code block did not run, and `else` runs when none of the `if` conditions were `TRUE`.
+
+Below, in addition the other dynamic update option added before, we add conditions to check the user's input before printing. In our case, we want to check that the `selcted_feed` object isn't `NA`, as using `as.integer()` converts any non-integer values to `NA`. Then we check that the value is within the range of our possible values, and finally print the subset of data if it's valid. Note that the check for `NA` comes first because using `>` and `<` on `NA` values gives an error.
+
+```{r}
+#Get Feed Options
+feed_options <- unique(chicks$feed)
+
+#Format Options
+formatted_options <- paste0(1:length(feed_options),". ", feed_options)
+cat(formatted_options, sep = "\n")
+
+#Get User Choice (as int)
+feed_choice <- as.integer(readline("Feed type: "))
+
+#Check User Input and Print Selected Option
+if (is.na(feed_choice)) {
+  cat("Please input a number.")
+} else if (feed_choice < 1 || feed_choice > length(feed_options)) {
+    cat("Invalid choice.")
+} else {
+  selected_feed <- feed_options[feed_choice]
+  print(subset(chicks, feed == selected_feed))
+}
+```
+
+## Combining Datasets
+
+Often, data is may be coming from multiple sources or be divided and later need to be recombined before using it in R. Sometimes before combining your data, you may need to cut out rows/columns, rename them, etc. When this isn't the case, combining datasets is relatively easy with `rbind()` which combines dataframes by rows (hence the r in the name). This function relies on dataframes having the same columns, as otherwise its impossible to match up the appropriate columns.
+
+Note that `rbind()` combines dataframes in the order they're given to the function, so below the data will be ordered by quarter. When combining datasets, you often will want to add an "ID" to show which dataset the data comes from. In this case, we add the `quarter` column to each dataframe to act as an identifier.
+
+```{r}
+#Import Data
+Q1 <- read.csv("data/sales/Q1.csv")
+Q2 <- read.csv("data/sales/Q2.csv")
+Q3 <- read.csv("data/sales/Q3.csv")
+Q4 <- read.csv("data/sales/Q4.csv")
+
+#Add Quarter Columns
+Q1$quarter <- 1
+Q2$quarter <- 2
+Q3$quarter <- 3
+Q4$quarter <- 4
+
+#Combine & View
+sales <- rbind(Q1, Q2, Q3, Q4)
+View(sales)
+
+#Print Number of Records
+print(length(sales[,1]))
+```
+
+Now that this new dataframe is created, we can start using its data to get some more information. For example, we can add a column to show if the sale amount was relatively high or "normal". To do this, an alternative form of conditions as a function can be used called `ifelse()`. This function works well for vectors and uses a test case like `if` as its first argument, the value to return if that condition is `TRUE` as the second, and the value to return otherwisea as the third.
+
+```{r}
+sales$value <- ifelse(sales$sale_amount > 100, "High Value","Regular")
+```
+
+# 3. Applying Functions
+
+When writing code, you will often have certain procedures that will need to be repeated multiple times in a script. Rather than rewriting this many times, a better method is to define a function, then call it later on when its needed. In R, this is done with `function()`. Here, we'll use the votes data from earlier and create a function for this that can be reused/adapted to different data. The function will take a `prompt` argument and ask the user for an input with this.
+
+Within functions, the variables used within them are not within the global scope, meaning that variables in a function are not available outside of them. `return()` is the way around this and allows us to pass objects to an outside scope. In the function below, the variable `votes` is defined in the function, so when we run `get_votes()`, this variable is created in the function's scope, but not the global one. Essentially, this makes it a temporary variable that only exists while the function is actively being used in our code, unless it gets returned.
+
+Note that `return()` returns a specified value, but by default R will return the last computed value. While `return()` isn't needed, for longer functions it could be better to explicitly return something especially with branching conditional procedures. In some other languages, the default return value for functions is an equivalent to `NA`, like `None` in Python, while in others its a value indicating if the function was successful (like `0` in C).
+
+```{r}
+#Define The get_votes function
+get_votes <- function(prompt) {
+  votes <-  as.integer(readline("Enter Votes: "))
+  return(votes)
+}
+
+#Call Function
+mario <- get_votes("Mario: ")
+peach <- get_votes("Peach: ")
+bowser <- get_votes("Bowser: ")
+#Inputs: 300, 150, 100
+```
+
+What if the user doesn't input a prompt for this function? In this instance, if no value is provided, the user will get an error, which is good if you want to enforce using a prompt. To prevent this, you can give a default value to the `prompt` argument that will show when no value is provided.
+
+```{r}
+#Define The get_votes function
+get_votes <- function(prompt = "Enter Votes: ") {
+  votes <-  as.integer(readline(prompt))
+  return(votes)
+}
+
+mario <- get_votes()
+peach <- get_votes()
+bowser <- get_votes()
+#Inputs: 300, 150, 100
+```
+
+When parameters are added to a function, there are two ways to use them in a function. You can assign parameters positionally by putting them in the same order as they're defined in the function or using keywords in the format: `func_var = "my_value"`. For the above function, you could assign "`Mario:`" as a prompt as either of the following: `get_votes("Mario: ")` (positionally), `get_votes(prompt = "Mario: ")`.
+
+When writing functions, its tempting put them together, assuming that the user will always know what to do with them. This is rarely the case and relies on you writing good documentation, the user reading that documentation, and no other weird circumstances occurring. To prevent erroneous mistakes in your functions, its important to program defensively; assume the user will make mistakes and handle potential errors and bugs.
+
+For the `get_votes()` functions, we run into an issue with input values whenever the user provides a non-integer value. `as.integer()` turns non-integer values into `NA` values through coercion, so we'll want to handle this before it gets assigned and tell the user what went wrong. When `as.integer()` runs, in our function some exceptions get raised which we won't want in our actual function since we're handling the issue they raise. To prevent these from showing, we can use `suppressWarning()`.
+
+```{r}
+get_votes <- function(prompt = "Enter Votes: ") {
+  votes <-  suppressWarning(as.integer(readline(prompt)))
+  if (is.na(votes)) {
+    stop()
+  } else {
+    return(votes)
+    }
+}
+```
+
+Instead of writing out multiple conditions, we can instead collapse this if-else structure into a single line of code.
+
+```{r}
+get_votes <- function(prompt = "Enter Votes: ") {
+  votes <-  suppressWarning(as.integer(readline(prompt)))
+  ifelse(is.na(votes), 0, votes)
+}
+```
+
+## Iterating with Loops
+
+Loops allow use to repeat the same code multiple times using the same or similar procedures. This prevents repeating code, especially for repetitive processes that can instead by iterative.
+
+Ways to loop in R include `repeat`, `while`, and `for`. `repeat` is a keyword that repeats a specific process indefinitely unless the keyword `break` is used. `while` loops while a certain condition is met. `for` repeats a process but only for a specific number of times based on an iterable object.
+
+```{r}
+#Using repeat
+cat("Using repeat:\n")
+
+i <- 3 
+repeat {
+  cat("quack!\n")
+  i <- i - 1
+  if (i == 0) {
+    break
+  }
+}
+
+#Using while
+cat("\nUsing while:\n")
+
+i <- 3
+while (i != 0) {
+  cat("quack!\n")
+  i <- i - 1
+}
+
+#Using for
+cat("\nUsing for:\n")
+
+n <- 3
+for (i in 1:n) {
+  cat("quack!\n")
+}
+```
+
+One way to use loops is re-prompting a user. With the `get_votes()` function from before, we can use `repeat` to re-prompt the user until they provide a valid number. Then, we can use a `for` loop to iterate through a list of candidates, ask for their votes, and count them.
+
+```{r}
+#Define Function
+get_votes <- function(prompt = "Enter Votes: ") {
+  repeat {
+    votes <- suppressWarnings(as.integer(readline(prompt)))
+    if (!is.na(votes)) {
+      return(votes)
+    }
+  }
+}
+
+#Iterate through Candidates
+total <- 0
+candidates <- c("Mario","Peach","Bowser")
+
+for (i in candidates) {
+  votes <- get_votes(paste0(i, ": "))
+  total <- total + votes
+}
+
+#Print Total
+cat(total)
+```
+
+Iterating can also be useful within dataframes. For example, with the `votes.csv` dataset, you could have row names that are the name of each candidate, rather than a column for the candidates. In this format, you can iterate using row indices to get total votes by candidate.
+
+```{r}
+#Import New Votes Dataset
+votes2 <- read.csv("data/votes2.csv")
+View(votes2)
+```
+
+```{r}
+#Iterate and Get Sum
+total_votes <- c()
+for (candidate in rownames(votes2)) {
+  total_votes[candidate] <- sum(votes2[candidate,])
+}
+
+#Show total_votes
+cat(total_votes)
+```
+
+## Using Apply
+
+When iterating over dataframes in this way, there is a special method for applying the same function over and over. The `apply()` function lets us apply functions across rows or columns. Apply takes three main arguments: a dataframe, `MARGIN` indicating if you want to apply across rows (`1`) or columns (`2`) , and `FUN` indicating what function to apply.
+
+```{r}
+apply(votes2, MARGIN = 1, FUN = sum)
+```
+
+# 4. Tidying Data
+
+## Installing and Using Packages
+
+Packages are a way to redistribute code for others to use, which is often extremely helpful when multiple people are doing the same process and can simply reuse previously created functions. With R, most packages are stored on and can be downloaded from CRAN (the Comprehensive R Archive Network). For data manipulation ("tidying") and visualization, R has a few packages that are extremely commonly used for this purpose including `dplyr`, `ggplot2`, `stringr` and `tidyr`. These specific packages collectively make up part of the "tidyverse".
+
+To install packages, we use `install.packages()` with the name of the package. This uses CRAN to find the package, but if a package isn't in CRAN or you need a specialized version of it, they can also be installed directly from files. To load a package into your workspace, the function `library()` is used. The reason this isn't called "package" is that the library is where R stores packages locally, so you're accessing the library and looking for a specific package rather than directly accessing it.
+
+Below, the package tidyverse is installed and dplyr is loaded into our workspace. Because tidyverse is a collection of packages, it cannot be accessed with `library()`, but its components such as dplyr can be.
+
+```{r}
+install.packages("tidyverse")
+```
+
+```{r}
+#Load dplyr to Workspace
+library(dplyr)
+```
+
+dplyr gives some new functions that can be used to quickly and with a high precision pull apart, subset, and manipulate data. The main functions from this package for this purpose include: `select()`, `filter()`, `arrange()`, `distinct()`, `group_by()`, and `summarize()`.
+
+## dplyr - Selecting, Filtering, and Sorting
+
+Within dplyr, there are some pre-made datasets that can be used for example data analysis. One of these (`storms`) is shows storm track data from NOAA between 1975 and 2021. This data is stored as a tibble, which is a specialized data format used by dplyr that is similar to a dataframe, but has other elements. For example, these can be printed "prettier" in the console and give the type of data for individual columns.
+
+```{r}
+#Show storms data
+storms
+```
+
+With this dataset, we'll look at hurricanes and their relative force compared to each other.
+
+When using packages, you can directly use their functions like normal or can indicate what package it's from using two colons (`package::function()` this syntax can be useful if your script requires many packages with some having the same names. Here, we'll use `select()` in this format to select specific columns of data to work with. This function uses a dataframe, tibble, etc. as its first argument, then a vector of column names as its second. In this instance, we want to specify columns to drop, rather than keep, so we'll add ! in front of the vector to indicate we want to keep columns that are not those specified. Since some of the column names are long, we'll also separate arguments into their own lines. As long as the commas are preserve, you can simply put arguments onto their own line for better readability.
+
+```{r}
+#Select
+dplyr::select(
+  storms, 
+  !c(
+    lat, 
+    long, 
+    pressure, 
+    tropicalstorm_force_diameter, 
+    hurricane_force_diameter
+    )
+)
+```
+
+This method is a bit "wordy", which we often want to avoid when working with a large number of rows or columns while subsetting. Luckily, dplyr comes with some helper functions that can make subsetting much easier, namely `contains()`, `ends_with()`, and `starts_with()`.
+
+```{r}
+#Select using ends_with
+dplyr::select(
+  storms,
+  !c(
+    lat,
+    long,
+    pressure,
+    ends_with("diameter")
+    )
+  )
+```
+
+Now that columns have been removed, you will also want to subset the rows of your data to only get specific values. Four our purposes, we'll use `filter()`. This function uses logical expressions to determine what to remove and keep. Below, we've added `hurricanes` as an object to store our subsetted data. To avoid doing this, you can instead add the `select()` function to `filter()` in place of the data object. For this instance that would be fine, but for more complex filtering, things can get messy quickly.
+
+```{r}
+#Select
+hurricanes <- dplyr::select(
+  storms,
+  !c(
+    lat,
+    long,
+    pressure,
+    ends_with("diameter")
+    )
+  )
+
+#Filter
+hurricanes <- dplyr::filter(
+  storms, 
+  status == "hurricane"
+)
+
+#Show Data
+hurricanes
+```
+
+An alternative to this is with the pipe operator. This allows you to "pipe" a value from a function on the left to the first argument of a function on the right. There are two version of this operator: `%>%`, a built-in operator that was incorporated into R in the past and `|>`, a more modern version. For most purposes, these are functionally the same, but advanced users may have specific uses for each.
+
+Note that pipe operators let you exclude the first argument of the function, so below it looks like `select()` now uses the columns as its first argument and `filter()` uses its expression as its first argument.
+
+```{r}
+#Filter and Select with Pipes
+storms |> 
+  select(!c(lat,long,pressure,ends_with("diameter"))) |>
+  filter(status == "hurricane")
+```
+
+Some other functions we can use with pipe operators include `arrange()`, which allows you to sort by values in a column. By default this sorts lowest to highest, but you can use `desc()` to sort from highest to lowest. You can also sort using multiple columns by providing both. This will first sort by the first column given, then for any values that are the same in the first column, sort that subset by the second column.
+
+In addition to `arrange()` you can also use `distinct()` to remove duplicate names. In this data, each storm was measured at multiple points in their path, leaving duplicate pieces of data for each. We also have some storms that share names such as the two hurricanes in 1979 and 1985 named Ana. To keep one value for each of these storms, you can provide the `name` and `year` column. This will only remove any rows where the name AND year match a previous record. By default `distinct()` only returns the filtered columns, so you'll need to set the argument `.keep.all` to `TRUE`.
+
+```{r}
+#Select, Filter, Arrange, and Distinct
+hurricanes <- storms |> 
+  select(!c(lat,long,pressure,ends_with("diameter"))) |>
+  filter(status == "hurricane") |>
+  arrange(desc(wind), name) |>
+  distinct(name, year, .keep_all = TRUE)
+```
+
+After filtering your data, you may want to save it more permanently than as an object in RStudio using `write.csv()`. Since with files you do need to worry about storage space, we'll use the pipe operator here to remove all but three columns, then pipe that into our write function.
+
+```{r}
+#Write to CSV
+hurricanes |> 
+  select(c(year,name, wind)) |>
+  write.csv("data/hurricanes.csv",row.names = FALSE)
+```
+
+```{r}
+#Import Data
+hurricanes <- read.csv("data/hurricanes.csv")
+```
+
+## dplyr - Grouping and Summarizing
+
+Often, data will need to be grouped based on a specific piece of data. For example, you may want to use grouping by year to find what years had the highest wind speed and give the hurricane with the highest speed for that year.
+
+To accomplish this, you'll need to use the `group_by()` function to actually group the data, then `slice_head()` to show only the first value in each group. Similar to `slice_head()`, there are similar functions to cut up data with `group_by()`: `slice_tail()` for the last value, `slice_max()` for the maximum value, and `slice_min()` for the minimum value.
+
+```{r}
+#Groupby, Sort, and Slice
+hurricanes |> 
+  group_by(year) |>
+  arrange(desc(wind)) |>
+  slice_head()
+
+#Groupby and Slice/Sort
+hurricanes |> 
+  group_by(year) |>
+  slice_max(order_by = wind)
+```
+
+After figuring out what years had the highest wind speeds, you might also want to see if that relates to the number of storms in each year. To do this, you can use `summarize()`, which summarizes values across rows based on their grouped values. We can input the function `n()` to this to create a count for each year in a new column. By default, `summarize()` only returns the grouped columns.
+
+```{r}
+#Groupby and Summarize
+hurricanes |> 
+  group_by(year) |>
+  summarize(count = n())
+```
+
+To un-group your values, the function `ungroup()` can be used. This will return the tibble to a flat format.
+
+## tidyr - Normalizing Data
+
+Often, when working with data from other sources, the information you want to use won't be "tidy." That is, you may find erroneous `NA` values, errors with data entry, weird data structures, etc.
+
+Sometimes, you may have a dataset where a single column represents two pieces of data that need to be separated out. In the students dataset, you'll see that there is an `attribute` column telling what the value of a `value` column means.
+
+```{r}
+#Load tidyr to Workspace
+library(tidyr)
+```
+
+```{r}
+#Import Data
+students <- read.csv("data/students.csv")
+View(students)
+```
+
+tidyr can be used to clean up data with incorrect structures like the one above. The function `pivot_wider()` allows us to reformat one column into new columns based on the values in another. For this example, the argument `id_cols` specifies what column will be used to identify records, i.e., new rows will be created with this as the shared value between them. The `names_from` argument specifies where the new column name will come from and `values_from` specifies where we'll get values for those columns. There's also another similar function called `pivot_longer()` which converts from columns to rows.
+
+```{r}
+#Pivot
+students <- pivot_wider(
+  students, 
+  id_cols = student,
+  names_from = attribute,
+  values_from = value
+  )
+
+#Fix GPA DType
+students$GPA <- as.numeric(students$GPA)
+
+#Find GPA by Major
+students |>
+  group_by(major) |>
+  summarize(GPA = mean(GPA, na.rm = TRUE))
+```
+
+## stringr - Working With Strings
+
+Data can sometimes have a variety of possible values within them that you may want to summarize. A common issue is that strings are often input in different ways by different people. For example, when surveying for a person's favorite show, they may use a short name, full name, different spacing, different punctuation, etc. To deal with this, tidyverse includes the stringr package, which focuses around manipulating string varaibles.
+
+```{r}
+#Load stringr into Workspace
+library(stringr)
+```
+
+```{r}
+#Import Data
+shows <- read.csv("data/shows.csv")
+
+#View Summarized Data by Show
+shows |>
+  group_by(show) |>
+  summarize(votes = n()) |>
+  ungroup() |>
+  arrange(desc(votes))
+```
+
+To get strings into a format where their names are matching, we'll need to use a variety of functions. The first change we can make is removing extra spaces using the `str_trim()` and `str_squish()` functions. Both functions remove spaces from the beginning and end, with `str_trim()` beign able to specify which end or both ends. `str_squish()` cannot specify an end and also replaces and areas with multiple spaces with a single space.
+
+To standardize the case of our text, we can used `str_to_lower()` (convert to lowercase), `str_to_upper()` (convert to uppercase), or `str_to_title()` (convert to title case. For this case, since we want the names of our shows to look mostly the same, we will want to use `str_to_title()`.
+
+Finally, to standardize the names with subtitles in them, we'll want to look for a substring of our basic show name in our dataset to see if any match. For this, we can use `str_detect()`, which looks for a specific substring in a set of data. When using this method, its possible to find and replace strings you didn't intend to. For example, "Avatar" is also a movie, so searching for this substring in a database that includes shows and movies would likely create some issues.
+
+```{r}
+#Squish and Title Case
+shows$show <- shows$show |>
+  str_squish() |>
+  str_to_title()
+
+#Check Substrings
+shows$show[str_detect(shows$show, "Avatar")] <- "Avatar: The Last Airbender"
+
+#View Summarized Data by Show
+shows |>
+  group_by(show) |>
+  summarize(votes = n()) |>
+  ungroup() |>
+  arrange(desc(votes))
+```
+
+# 5. Visualizing Data
+
+Data can be visualized in a variety of ways, both for exploratory analyses and final products. The type of data you have and how you want others to interpret the data will determine how data is visualized. In R, the main way that data is visualized is with the ggplot2 package.
+
+```{r}
+#Load ggplot2 to Workspace
+library(ggplot2)
+```
+
+```{r}
+#Load Data
+votes <- read.csv("data/votes.csv")
+
+#Create total votes column
+votes$votes <- votes$poll + votes$mail
+View(votes)
+```
+
+Plots made with ggplot2 are primarily done with the function `ggplot()`, which has a wide variety of formatting arguments/options. ggplot2 has a special syntax compared to most other packages, with `+` allowing you to add configuration options to plots, overwriting the normal behavior of addition. These additional values added with `+` are called layers.
+
+The basic components of a plot are specified within the `ggplot()` function: your data (usually as a dataframe) is specified with the `data` argument (or first positional argument), and the `aes` argument is used to specify axes and aesthetic values.
+
+For a basic bar plot, we can specify our data, axes, and add the `geom_col()` function.
+
+```{r}
+ggplot(data = votes, aes(x = candidate, y = votes)) + geom_col()
+```
+
+## Graph Styling
+
+In the above plot, the x-axis is ordered alphabetically. By default, ggplot2 will sort categorical variables, rather than following the order it appears in a dataframe. To change the appears of this plot, we can add more layers to our `ggplot()` function. These can be added in any order, but there are some conventions generally accepted for writing code for ggplot2 graphs. The general order used is: `ggplot()` (your base), geometry (ex: `geom_col()`), scales, labels, anything other styling, then themes.
+
+For example, changing the scale can be done with `scale_x_continuous()`, `scale_y_continuous()`, `scale_x_discrete()`, or `scale_y_discrete()`. To add extra room above the bars here, we can specify a limit within the `scale_y_discrete()` function in the form of a vector.
+
+The names of labels can also be changed. By default, column labels are the same as column names, which often is not ideal due to the limits on spaces or capitalization used in them. To change these, the `labs()` function is added added as a layer.
+
+Color is another major aspect of plots, which can be changed using `aes()` in the geometry function (`geom_col()` here) with the argument `fill`. This gives your columns essentially random colors and also creates a legend for your columns and their colors. When working with colors, making them accessible is usually a concern, so using the Viridis scale can be a quick way to address this. For this is done as an additional layer on your plot, with different functions for each data type (such as `scale_file_viridis_d()` for discrete variables). This function is also a potential method for renaming the legend with the `name` argument. To remove the legend, you can also add the `show.legend` parameter to the geometry's `aes()` function, and set it to `FALSE`.
+
+Similar to colors, there are also themes for layers. The default theme includes a grey background that isn't generally preferred. These theme functions all begin with "theme\_" and are generally added as the last layer. Most "official-looking" graphs will use the minimalistic classic theme with `theme_classic()`.
+
+Below, the plot created is assigned to an object, `p`. To show this plot within a notebook chunk, the `show()` function can be used. This plot object can still be modified later on with additional arguments in place of the standard `ggplot()` function.
+
+```{r}
+p <- ggplot(data = votes, aes(x = candidate, y = votes)) + 
+  geom_col(aes(fill = candidate)) + 
+  scale_y_continuous(limits = c(0, 250)) + 
+  scale_fill_viridis_d(name = "Candidate") +
+  labs(x = "Votes", y = "Candidate", title = "Election Results") +
+  theme_classic()
+
+show(p)
+```
+
+## Saving Plots
+
+Plots can be saved to an image using `ggsave()`. You can customize a variety of parameters for your plot image, but mainly need to specify the file path to save to, what plot to save, and the size information.
+
+```{r}
+ggsave(filename = "plots/votes.png",plot = p, 
+       width = 1200, height = 900, units = "px")
+```
+
+## Other Common Ways to Represent Data
+
+The most common methods of graphing two pieces of numerical (continuous) data include scatterplots (using `geom_point()` or `geom_jitter()` for over-plotted graphs).
+
+```{r}
+#Load Data
+load("data/candy.RData")
+```
+
+```{r}
+#Scatterplot
+ggplot(candy, aes(x = price_percentile, y = sugar_percentile)) +
+  geom_point() + labs(title = "geom_point") + 
+  labs(x = "Price", y = "Sugar", title = "Price and Sugar (geom_point)") + 
+  theme_classic()
+```
+
+```{r}
+#Jitter Scatterplot
+ggplot(candy, aes(x = price_percentile, y = sugar_percentile)) +
+  geom_jitter() +
+  labs(x = "Price", y = "Sugar", title = "Price and Sugar (geom_jitter)") + 
+  theme_classic()
+```
+
+When one of your numerical variables is a date, instead of scatterplots, you'll typically use a line graph (i.e., a time series). This can be done with `geom_line()` and to show the individual data points, a point layer can also be added.
+
+```{r}
+#Load Data
+load("data/anita.RData")
+```
+
+```{r}
+#Time Series
+ggplot(anita, aes(x = timestamp, y = wind)) + 
+  geom_line() + geom_point() +
+  labs(x = "Date", y = "Wind Speed (knots)", title = "Hurricane Anita") +
+  theme_classic()
+```
+
+## Further Styling
+
+Colors can be applied using pre-defined color names present in R/ggplot or using hex codes. When using pre-defined names, these colors will appear in the code editor as the actual color without needing to re-make your graph. In the instance below, note that color is not be used with `aes()`, so colors are not being mapped to specific parts of the data, rather to the entire jitter graph.
+
+The size of points can be changed similarly, by specifying a number representing the size of points. Shape similarly uses numbers in place of shape names to change the same of points. Some basic shapes can also be used by name, such as "triangle". Some shapes have a fill parameter which allows you to specify a secondary color to fill the interior of the shape with, using the primary color as the border.
+
+Line graphs have a line type that can be changed, as well as a line width similar to points. You can also add horizontal/vertical lines with `geom_hline()` and `geom_vline()`. These can be used to mark a division in the data, such as the point where wind speeds become classified as hurricanes.
+
+```{r}
+#Scatterplot
+ggplot(candy, aes(x = price_percentile, y = sugar_percentile)) +
+  geom_jitter(color = "darkorchid", 
+              size = 3,
+              shape = 21,
+              fill = "orchid") +
+  labs(x = "Price", y = "Sugar", title = "Price and Sugar") + 
+  theme_classic()
+```
+
+```{r}
+#Time Series
+ggplot(anita, aes(x = timestamp, y = wind)) + 
+  geom_line(linewidth = 0.5) + 
+  geom_point(color = "deepskyblue4", size = 2.5) +
+  geom_hline(linetype = 2, yintercept = 65) + 
+  labs(x = "Date", y = "Wind Speed (knots)", title = "Hurricane Anita") +
+  theme_classic()
+```
+
+# 6. Testing Programs
+
+## Exceptions & Warnings
+
+Exceptions in programming occur when something exceptional (usually unexpected) occurs in a program. When writing programs, functions, etc., its important to control for exceptions and handling them when they occur. For example, when writing a function to find the average value of a vector, we expect the user to input numeric values. If this isn't the case, an exception is raised, so to prevent this, we can handle the error by returning `NA` in that instance.
+
+Because a return value of `NA` might not be expected in this instance, adding a warning message to the user could be beneficial. This can be done with `message()`, though this is typically used for non-exception behavior, such as informing the user of the progress of functions that take longer than average to run. Instead, we can use `warning()` to show there's a level of severity to the message.
+
+One level higher in severity than warnings is errors. With warnings, the program will continue to progress, but the user is informed, but the program will instead stop when an error is encountered. To raise an error, the `stop()` function is used.
+
+```{r}
+#Average w/ Warning
+average <- function(x) {
+  if (!is.numeric(x)) {
+    warning("`x` must be a numeric vector. Returning NA instead.")
+    return(NA)
+  }
+  sum(x) / length(x)
+}
+
+average(c("1","2","3"))
+```
+
+```{r}
+#Average w/ Stop/Error
+average <- function(x) {
+  if (!is.numeric(x)) {
+    stop("`x` must be a numeric vector.")
+  }
+  sum(x) / length(x)
+}
+
+average(c("1","2","3"))
+```
+
+```{r}
+#Average w/ Stop & any NA check
+average <- function(x) {
+  if (any(is.na(x))) {
+    warning("`x` contains one or more NA values. Returning NA.")
+    return(NA)
+  }
+  if (!is.numeric(x)) {
+    stop("`x` must be a numeric vector.")
+  }
+
+  sum(x) / length(x)
+}
+
+average(c(1, 2 ,3))
+average(c(1, 2 ,3 , NA))
+```
+
+## Unit Tests
+
+Unit tests are a method of testing the efficacy of functions, especially as they are actively being developed. By convention, tests are done in separate file named in the format `test-funcname.R`. These tests typically give specific inputs with an expected outcome to functions and give feedback on if the function has "passed" the test. To avoid pasting entire functions into the same file as these tests, the function `source()` can be used to call functions from other files. In essence, this imports the function to the current code file.
+
+Note: due to these notes being taken in a markdown file, there is no source to pull the `average()` function from, but below is the code as if this file was being used.
+
+```{r}
+#Import average function
+source("average.R")
+
+#Define Test Cases
+test_average <- function() {
+  if (average(c(1,2,3)) == 2) {
+    cat("`average` passed test\n")
+  } else {
+    cat("`average` failed test\n")
+  }
+  if (average(c(-1,-2,-3)) == -2) {
+    cat("`average` passed test\n")
+  } else {
+    cat("`average` failed test\n")
+  }
+  if (average(c(-1,0,1)) == 0) {
+    cat("`average` passed test\n")
+  } else {
+    cat("`average` failed test\n")
+  }
+}
+
+#Test
+test_average()
+```
+
+Because you'll typically have a large number of test cases, rather than writing like the chunk code above over and over, the testthat library can be used to test your code. Within testthat is the function `test_that()`, which takes a description of the test as its first argument and test cases as the second.
+
+Within the second argument, within brackets each case is defined with a function describing the expected behavior. One of these, `expect_equal()` tests that the value resulting from the defined case is equal to a certain value. There are also more specific functions, such as those that check for warnings (`expect_warning()`) or no warning (`expect_no_warning()`).
+
+```{r}
+#Install and Load testthat
+install.packages("testthat")
+library(testthat)
+```
+
+```{r}
+#source("average.R")
+
+#Test Numerical Inputs Cases
+test_that("`average` calculates mean", {
+  expect_equal(average(c(1,2,3)), 2)
+  expect_equal(average(c(-1,0, 1)), 0)
+  expect_equal(average(c(-1,-2,-3)), -2)
+  expect_equal(average(c(-2,-1,1,2)), 0)
+  expect_equal(average(c(0.1,0.5)),0.3)
+  expect_equal(average(c(0.1,0.5)), 0.3, tolerance = 1e-8)
+})
+
+#Test Warnings Cases
+test_that("`average` warns about NAs in input", {
+  expect_warning(average(c(1,NA,3)))
+  expect_warning(average(c(NA,NA,NA)))
+})
+
+#Test Return NA Cases
+test_that("`average` returns NA with NAs in input", {
+  expect_equal(suppressWarnings(average(c(1,NA,3))), NA)
+  expect_equal(suppressWarnings(average(c(NA,NA,NA))), NA)
+})
+
+#Test Error Cases
+test_that("`average` stops if `x` is non-numeric", {
+  expect_error(average(c("1","2","3")))
+  expect_error(average(c("quack!")))
+})
+```
+
+## Development Philosophies
+
+Test-driven development (TDD) is a development philosophy focused around the use of tests as the driver of development. In this philosophy, tests are created before writing code and determines what the potential outputs, errors, warnings, etc. will be in the code that will be created. This method allows developers to have well defined goals and can help identify edge cases early on. Behavior-driven development (BDD) was developed from TDD with a greater focus on the actual behavior of programs. BDD uses more descriptive language for tests and attempts to provide more context for how, why, and what to do if a test fails.
+
+## Test Converage
+
+Test coverage is metric used to describe how much of a codebase is covered by tests as well as how many successfully past tests.
+
+# 7. Packaging Programs
+
+## Creating Packages
+
+Packages in R are distributed as single binary files, typically downloaded from the CRAN. Most programs (but not all) are actually initially written in R, and later compiled into these files. These initial program files are called source code. When writing source code, all program files go within a single directory. For the sake of these notes, code snippets will be written in this markdown file and also added to the `ducksay` folder.
+
+```{r}
+#Create Package Directory
+dir.create("ducksay")
+```
+
+## Package Structure
+
+Each R package will have the same general file structure within them:
+
+`DESCRIPTION`
+
+-   Describes the package: who made it, current version number, etc.
+
+`NAMESPACE`
+
+-   Defines the functions an end user will be able to interact with from your package.
+
+`man/`
+
+-   A folder containing documentation for functions in the package ("man" for "manual").
+
+`R/`
+
+-   R files with actual program code.
+
+`tests/`
+
+-   Code for program tests.
+
+`...`
+
+-   Other folders and files not necessary, but included in more advanced packages.
+
+```{r}
+#Create Basic Files and Directories
+file.create("ducksay/DESCRIPTION")
+file.create("ducksay/NAMESPACE")
+dir.create("ducksay/man")
+dir.create("ducksay/R")
+dir.create("ducksay/tests")
+```
+
+## Descriptions
+
+WIthin the `DESCRIPTION` file, there is a set of values required that describe specific aspects of your package.
+
+"Package" - Name of the package. This is the name used when using functions such as `install.packages()`. This cannot include capitals, spaces, etc.
+
+"Title" - Title of your package. This can be different than the name with capitals, spaces, etc.
+
+"Description" - What the package does, its use cases, etc.
+
+"Version" - Current version of the package.
+
+"Authors\@R" - Who(m) wrote the package and what their role was.
+
+"License" - Legal terms of use for the code included in the package.
+
+```{r}
+#Write to DESCRIPTION
+write(x = 
+'Package: ducksay
+Title: Ducksay
+Description: Say hello with a duck.
+Version: 1.0
+Authors@R: person("Tanner","Hammond", role = c("aut","cre", "cph"))
+License: MIT + file LICENSE',
+  file = "ducksay/DESCRIPTION"
+)
+```
+
+Above, the basic information required in a `DESCRIPTION` file was added. In this, the function `person()` was used to denote the author/creator of the package. For the License value, the MIT License was used, with added information included in a file called `LICENSE`.
+
+```{r}
+file.create("ducksay/LICENSE")
+write(x = 
+'YEAR: 2024
+COPYRIGHT HOLDER: ducksay authors',
+  file = "ducksay/LICENSE"
+)
+```
+
+## Package Code
+
+All R code files for the main body of the function will be within the `R` folder. Below, a new R file is created in this folder, with the following function defined in it.
+
+```{r}
+#Create R File
+file.create("ducksay/R/ducksay.R")
+```
+
+```{r}
+#Function (ducksay)
+ducksay <- function(phrase = "hello, world") {
+  paste(
+    phrase,
+    ">(. )__",
+    " (____/",
+    sep = "\n"
+  )
+}
+```
+
+## Namespaces
+
+The `NAMESPACE` file determines what a user can access as a function in your package. Within this file, we use the `export()` function to say that ducksay is available outside of the package's internal namespace.
+
+```{r}
+#Write to NAMESPACE
+write(x = "export(ducksay)", file = "ducksay/NAMESPACE")
+```
+
+## Documentation
+
+To access documentation within R, a question mark is placed before the function you want to get information for (`?ducksay`). Documentation is written in the `man` folder using R's markup format.
+
+`\name{}` - Name of the function.
+
+`\alias{}` - Alias the function can be called with using `?`.
+
+`\title{}` - Title of the function.
+
+`\description` - Description of what the function does, etc.
+
+```{r}
+#Create Documentation File
+file.create("ducksay/man/ducksay.Rd")
+```
+
+```{r}
+#Add Documentation
+write(
+"\\name{ducksay}
+\\alias{ducksay}
+\\title{Duck Say}
+\\description{A duck that says hello}",
+  file = "ducksay/man/ducksay.Rd"
+)
+```
+
+## Building Packages
+
+Source code can be built into binary files through a few methods. First, `build()` is a devtools function or `R CDM build`, a base R command. `build()` is used within R itself, while `R CMD build` is used within the terminal. The files that are created from this use the `.tar.gz` file extension ("tarballs"), which is essentially a zip file format.
+
+```{r}
+#Build Package
+library(devtools)
+setwd('ducksay')
+build()
+```

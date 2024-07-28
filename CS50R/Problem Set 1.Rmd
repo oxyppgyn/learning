@@ -1,0 +1,169 @@
+# Pit Stop
+
+## Problem to Solve
+
+Ever changed your car’s tires in less than 3 seconds? In [Formula One](https://formula1.com/), that’s the usual!
+
+Formula One is a type of elite, international racing. Races take place all over the world, including destinations like Miami, Florida, and Suzuka, Japan. Besides the racer themselves, each team is composed of a “pit crew” of up to 22 people. The pit crew changes tires, fixes the car, and refuels very quickly. Nowadays, an excellent pit stop can take less than 3 seconds.
+
+In a program called `pitstop.R`, in a folder called `pitstop`, write a program to analyze pit stop times at Formula One races.
+
+## Specification
+
+Prompt: In `pitstop.R`, write a program that prompts the user to enter a CSV file to analyze. Your program should then `print` the following information:
+
+-   The total number of pit stops
+
+-   The duration of the shortest pit stop
+
+-   The duration of the longest pit stop
+
+-   The total time spent on pit stops during the race, across all racers
+
+You may assume the user will not enter an invalid filename. All CSV files will have the same column names.
+
+## Answer
+
+```{r}
+#Set Working Dir
+setwd('/data/PS1')
+
+#Download Files
+download.file("https://cdn.cs50.net/r/2024/x/psets/1/pitstop.zip", "pitstop.zip")
+unzip("pitstop.zip")
+file.remove("pitstop.zip")
+```
+
+```{r}
+#User Input
+csv_file <- readline("Enter Your CSV File: ")
+
+#Read CSV
+dataset <- read.csv(paste0(getwd(),"/pitstop/", csv_file))
+
+#Total - Pit Stops
+total_stops <- nrow(dataset)
+
+#Duration - Shortest Pit Stop
+min_time <- min(dataset$time)
+
+#Duraction - Longest Pit Stop
+max_time <- max(dataset$time)
+
+#Total Time at Pit Stop for All Racers
+total_time <- sum(dataset$time)
+
+#Print
+print(paste("Your CSV File:", csv_file))
+print(paste("Total Number of Pit Stops:", total_stops, "stops"))
+print(paste("Shortest Pit Stop:", min_time, "seconds"))
+print(paste("Longest Pit Stops:", max_time, "seconds"))
+print(paste("Total Time Spent at Pit Stops:", total_time, "seconds"))
+
+```
+
+# `art.frame`
+
+## Problem to Solve
+
+You’ve learned about data frames: objects for storing data in rows and columns. In a file called `art.R` in a folder called `art.frame`, practice using data frames to create your very own art in R.
+
+## Specification
+
+Modify the data frame stored as `art` to make art of your choice. You have creative freedom to:
+
+-   Add rows and columns
+
+-   Rename columns
+
+Consider avoiding emoji: when printed, they appear wider than other characters and will break the vertical alignment of your columns.
+
+The only specifications you *must* adhere to are the following:
+
+-   You should store your data frame using an object called `art`.
+
+-   You should print your data frame at the end of your program.
+
+-   Your data frame should contain at least 3 rows and 3 columns.
+
+```{r}
+#Create Vectors w/ 5 Elements Each
+#It's a face?
+art <- data.frame(
+  A = c(" "," "," "," "," "),
+  B = c("~~~~~","0"," ","________"," "),
+  C = c(" "," ","4","________"," "),
+  D = c("~~~~~","0"," ","________"," "),
+  E = c(" "," "," "," "," ")
+)
+
+print(art)
+```
+
+# Big Five
+
+## Problem to Solve
+
+Ever taken a [BuzzFeed quiz](https://www.buzzfeed.com/quizzes) to determine whether you’re more like a brownie or a chocolate chip cookie? Turns out personality can be characterized in many ways and—within the present-day psychological community—some of the most common traits to describe personality include:
+
+-   **Extroversion**, the extent to which one might be socially outgoing
+
+-   **Neuroticism**, the extent to which one might experience emotional swings
+
+-   **Agreeableness**, the extent to which one might seek to be cooperative and empathetic
+
+-   **Conscientiousness**, the extent to which one might prioritize order and self-discipline
+
+-   **Openness**, the extent to which one might be open to new experiences
+
+These 5 personality traits are together referred to as “The Big 5.” Psychologists (or those who are just curious about their personality!) might use various personality tests to assess the relative strength of these traits in one’s personality.
+
+In a program called `big5.R`, in a folder called `big5`, write a program to analyze the results of thousands of Big 5 personality tests.
+
+## Specification
+
+In `big5.R`, analyze the personality tests in `tests.tsv`, writing the results to a new file, `analysis.csv`.
+
+`analysis.csv` should retain all columns in `tests.tsv`, with the following updates:
+
+-   Convert the **gender** column from a numeric representation to a textual representation.
+
+-   Add the following columns:
+
+    -   **extroversion**, a column that represents each test's result on the extroversion trait
+
+    -   **neuroticism**, a column that represents each test's result on the neuroticism trait
+
+    -   **agreeableness**, a column that represents each test's result on the agreeableness trait
+
+    -   **conscientiousness**, a column that represents each test's result on the conscientiousness trait
+
+    -   **openness**, a column that represents each test's result on the openness trait
+
+To understand `tests.tsv`, be sure to reference `codebook.txt`!
+
+```{r}
+#Download Files
+download.file("https://cdn.cs50.net/r/2024/x/psets/1/big5.zip", "big5.zip")
+unzip("big5.zip")
+file.remove("big5.zip")
+```
+
+```{r}
+tests <- read.table(paste0(getwd(),"/big5/tests.tsv"), sep = "\t", header = TRUE)
+
+#Convert Gender from Numerical
+tests$gender <- factor(tests$gender, labels = c("Unanswered","Male","Female","Other"))
+
+#Add Columns
+tests$extroversion <- paste(tests$E1, tests$E2, tests$E3, sep = ", ")
+tests$neurotocism <- paste(tests$N1, tests$N2, tests$N3, sep = ", ")
+tests$agreeableness <- paste(tests$A1, tests$A2, tests$A3, sep = " ")
+tests$conscientiousness <- paste(tests$C1, tests$C2, tests$C3, sep = " ")
+tests$openness <- paste(tests$O1, tests$O2, tests$O3, sep = " ")
+
+#Write to CSV
+write.csv(tests, paste0(getwd(),"/big5/analysis.csv"), row.names = FALSE)
+
+#Not really sure if this is what I'm supposed to do but the prompt is vague *shrug*
+```

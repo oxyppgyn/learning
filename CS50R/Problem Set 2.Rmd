@@ -1,0 +1,244 @@
+# Librarian
+
+## Problem To Solve
+
+You have tended to a vast library at the edge of the woods for many years, helping readers find the knowledge they need to continue on their journey.
+
+In a folder named `library`, in files named `log.R` and `answers.txt`, help several readers find the books they are looking for.
+
+## Specification
+
+For this problem, equally as important as finding the books is the process you use to do so. In `log.R`, keep a log of all R code you run to find each reader’s book. Label each section with a comment: in R, comments are any lines that begin with `#`, per the below:
+
+```         
+# This is a comment in R
+```
+
+The comment should describe why you’ve written the code you’ve written, as well as what information you’re hoping to glean from it. Ultimately, `log.R` should serve as evidence of the process you used to find each book!
+
+Upon finding a book, complete the corresponding line in `answers.txt` by filling in the book’s title. Be sure not to change any of the existing text in the file or to add any other lines to the file!
+
+Ultimately, you should submit both your `log.R` and `answers.txt` files.
+
+### [**The Writer**](https://cs50.harvard.edu/r/2024/psets/2/librarian/#the-writer)
+
+Your first reader of the day walks up to your desk and greets you:
+
+> Dearest librarian, curator, cataloger! I yearn, hunger, *dream* for the author Mia Morgan’s sole, only, exclusive book! Please uncover it, fetch it, retrieve it for me. I will owe you a great debt, a wonderful sum, an *immortal* obligation.
+
+In `log.R`, write R code to find the title of the book that The Writer is referencing. Once you’ve found the title, write it in `answers.txt`.
+
+### [**The Musician**](https://cs50.harvard.edu/r/2024/psets/2/librarian/#the-musician)
+
+A reader with a ukulele walks up to your desk:
+
+> Hey, I’m on the lookout for a book on the topic of music, a real classic. I think it hit the shelves back in 1613. Music history is just so fascinating, don’t you think?
+
+In `log.R`, write R code to find the title of the book that The Musician is referencing. Once you’ve found the title, write it in `answers.txt`.
+
+### [**The Traveler**](https://cs50.harvard.edu/r/2024/psets/2/librarian/#the-traveler)
+
+A hunched, cloaked figure approaches your desk, handing you a sheet of paper without saying a word. On it, you see two possible author names: Lysandra Silverleaf or Elena Petrova. Below, you see the year in which the book was published: 1775.
+
+In `log.R`, write R code to find the title of the book that The Traveler is referencing. Once you’ve found the title, write it in `answers.txt`.
+
+### [**The Painter**](https://cs50.harvard.edu/r/2024/psets/2/librarian/#the-painter)
+
+From behind, you hear a reader call to you:
+
+> Oh, I remember this wonderful book on the topic of art from my childhood! It was like a burst of colors—vivid reds, soothing blues, vibrant yellows. It was not too long, not too short, probably between 200 and 300 pages. And it was definitely published in either 1990 or 1992, but absolutely not 1991.
+
+In `log.R`, write R code to find the title of the book that The Painter is referencing. Once you’ve found the title, write it in `answers.txt`.
+
+### [**The Scientist**](https://cs50.harvard.edu/r/2024/psets/2/librarian/#the-scientist)
+
+You receive a phone call:
+
+> I need the book with “Quantum Mechanics” in the title.
+
+In `log.R`, write R code to find the title of the book that The Scientist is referencing. Once you’ve found the title, write it in `answers.txt`.
+
+### [**The Teacher**](https://cs50.harvard.edu/r/2024/psets/2/librarian/#the-teacher)
+
+A small knock on the door reveals your next reader:
+
+> Apologies for the trouble, but I’m looking for a book on the topic of education published in the 1700s. Unfortunately, I can’t recall the author, but I do remember they hailed from the town of Zenthia.
+
+In `log.R`, write R code to find the title of the book that The Teacher is referencing. Once you’ve found the title, write it in `answers.txt`.
+
+## Answer
+
+```{r}
+#Load Data
+books <- read.csv("data/PS2/books.csv")
+View(books)
+authors <- read.csv("data/PS2/authors.csv")
+View(authors)
+
+#Get stringr
+library(stringr)
+```
+
+```{r}
+#Make a vector to hold books
+book_list <- c()
+
+#The Writer
+##author of Mia Morgan
+book_list[1] <- books$title[books$author == "Mia Morgan"]
+
+#The Traveler
+##author of Lysandra Silverleaf or Elena Petrova, year of 1775
+book_list[2] <- books$title[(books$author == "Lysandra Silverleaf" | books$author == "Elena Petrova") & books$year == 1775]
+
+#The Painter
+##pages of 200-300, year of 1990 or 1992
+book_list[3] <- books$title[(books$pages > 200 | books$pages < 300) & (books$year == 1990 | books$year == 1992) & books$topic == "Art"]
+
+#The Scientist
+##title with "Quantum Mechanics"
+book_list[4] <- books$title[str_detect(books$title, "Quantum Mechanics")]
+
+#The Teacher
+##year of 1700-1799, author from Zenthia
+authors_zenthia <- authors$author[authors$hometown == "Zenthia"]
+book_list[5] <- books$title[(books$author == authors_zenthia[1] | books$author == authors_zenthia[2]) & (books$year < 1800 & books$year >= 1700) & books$topic == "Education"] 
+
+book_list
+
+write(file = "data/PS2/answers.txt", x = book_list)
+```
+
+# Tea House
+
+## Problem to Solve
+
+Tea is the [most popular drink in the world](https://nutritionsource.hsph.harvard.edu/food-features/tea/)—after, of course, water!
+
+In a program called `teahouse.R`, in a folder called `teahouse`, write a program to recommend users a cup of tea that will be… well, [their cup of tea](https://www.merriam-webster.com/dictionary/someone's%20cup%20of%20tea).
+
+## Specification
+
+This problem is composed of two parts. In the first part, you’ll write `teahouse.R`. In the second, you’ll write a program of your choice.
+
+\
+![Tea Diagram](https://cs50.harvard.edu/r/2024/psets/2/teahouse/img/tea.png){alt="Tea Diagram"}
+
+Tea varies along many dimensions. Consider two for the sake of this problem: **flavor** and **caffeine**.
+
+In `teahouse.R`, write a program that prompts a user twice: first for their taste in flavor, and second for their preference for caffeine. Then, recommend teas based on the following logic:
+
+-   Recommend **green tea** if a user prefers caffeine and a light flavor.
+
+-   Recommend **black tea** if a user prefers caffeine and a bold flavor.
+
+-   Recommend **chamomile tea** if a user prefers no caffeine and a light flavor.
+
+-   Recommend **rooibos tea** if a user prefers no caffeine and a bold flavor.
+
+A user should enter either “Light” or “Bold” for their taste in flavor and “Yes” or “No” for their preference for caffeine. If a user does not enter a valid choice for either one, do not recommend a tea: instead, remind them of the proper inputs.
+
+### [**Part 2: Setting Up Shop**](https://cs50.harvard.edu/r/2024/psets/2/teahouse/#part-2-setting-up-shop)
+
+Think about a beverage you particularly enjoy (or perhaps a type of food!). In the same folder as `teahouse.R`, write a program to recommend various types of that beverage or food based on input from the user. Be as creative as you’d like: the only requirement is that you’re excited about your choice!
+
+## Answer (Part 1)
+
+```{r}
+while (TRUE) {
+flavor <- readline(prompt = "What Flavor? (Light/Bold): ")
+caffeine <- readline("Caffeine (Yes/No): ")
+if (flavor == "Light" & caffeine == "Yes") {
+  cat("Recommendation: Green Tea")
+  break
+  } else if (flavor == "Light" & caffeine == "No") {
+  cat("Recommendation: Chamomile Tea")
+    break
+  } else if (flavor == "Bold" & caffeine == "Yes") {
+  cat("Recommendation: Black Tea")
+    break
+  } else if (flavor == "Bold" & caffeine == "No") {
+    cat("Recommendation: Rooibos Tea")
+    break
+  } else {
+  cat("Input Light or Bold for flavor and Yes or No for caffeine")
+  }
+}
+```
+
+## Answer (Part 2)
+
+```{r}
+while (TRUE) {
+temp <- readline(prompt = "What temperature? (Cold/Hot): ")
+coffee <- readline("Coffee (Yes/No): ")
+if (temp == "Hot" & coffee == "Yes") {
+  cat("Recommendation: Espresso")
+  break
+  } else if (temp == "Hot" & coffee == "No") {
+  cat("Recommendation: Chamomile Tea")
+    break
+  } else if (temp == "Cold" & coffee == "Yes") {
+  cat("Recommendation: Mocha")
+    break
+  } else if (temp == "Cold" & coffee == "No") {
+    cat("Recommendation: Matcha")
+    break
+  } else {
+  cat("Input Hot or Cold for temperature and Yes or No for coffee")
+  }
+}
+```
+
+# On Time
+
+## Problem to Solve
+
+Built to help people stay on time while moving around the city, the first subway tunnels in the United States are [still in use today](https://www.mbta.com/history) under Boston Common (not too far from Harvard itself!). Over 100 years later, the [MBTA](https://www.mbta.com/)—the Massachusetts Bay Transportation Authority—manages public transportation around Boston, still ensuring everyone can stay on time, whether by subway, bus, railroad, or ferry.
+
+In `ontime.R`, in a folder called `ontime`, write a program to tell users how likely they are to be on time while taking a particular MBTA route.
+
+## Specification
+
+In `ontime.R`, use the data provided in `bus.csv` and `rail.csv` to write a program that:
+
+1.  Prompts the user to enter a route they intend to take.
+
+2.  Outputs the `mean` reliability for all services along that route. Output two means: one for peak hours and one for off-peak hours. Express the mean as a percentage, rounded to the nearest whole percentage point.
+
+    -   For instance, if a user enters “Blue,” find the `mean` reliability—for both peak and off-peak hours—among all rows with “Blue” as the listed **route**. Express the result as a percentage, rounded to the nearest whole percentage point.
+
+3.  Tells the user to enter a valid route if they enter an invalid one.
+
+If you haven’t already, learn more about the [schema](https://cs50.harvard.edu/r/2024/psets/2/ontime/#schema) of this data before starting!
+
+## Answer
+
+```{r}
+#Import Data
+bus <- read.csv("data/PS2/bus.csv")
+rail <- read.csv("data/PS2/rail.csv")
+View(bus)
+View(rail)
+```
+
+```{r}
+#Combine Dataframes
+all_routes <- rbind(bus, rail)
+all_routes$reliability <- all_routes$numerator / all_routes$denominator * 100
+
+#Ask for Route
+route <- readline(prompt = "What route? ")
+
+#Get Info for Route
+route_data <- all_routes[all_routes$route == route,]
+
+#Get Mean or Inform Bad Route
+if (length(route_data) > 0) {
+  peak_mean <- as.integer(mean(route_data$reliability[route_data$peak == "PEAK"]))
+  offpeak_mean <- as.integer(mean(route_data$reliability[route_data$peak == "OFF_PEAK"]))
+  cat("Peak mean:", peak_mean, ", Off-peak mean:", offpeak_mean)
+} else {
+  cat("Enter a valid route.")
+}
+```

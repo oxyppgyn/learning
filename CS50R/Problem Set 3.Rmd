@@ -1,0 +1,128 @@
+# PDX Carpet
+
+## Problem to Solve
+
+Weirdly hailed as [“iconic,”](https://pdxnext.com/Stories/Details/PDX-carpet-returns-main-terminal) [“classic,”](https://www.wweek.com/culture/2022/02/14/the-classic-portland-airport-carpet-is-making-a-comeback/) and [“beloved,”](https://thatoregonlife.com/2024/04/the-beloved-pdx-carpet-is-back-rolled-out-in-main-terminal/) the carpet at [Portland International Airport](https://www.flypdx.com/) (PDX) has maintained a special place in the city of Portland Oregon’s history since it was installed in the early 1990s. Despite the carpet’s loyal following, PDX was forced to replace the design in 2015 due to the wear and tear from so many visitors. After deciding to give away patches of the former carpet, the airport saw cars lined up for hours to snag a piece of Portland history.
+
+In this problem you’ll go back in time, using R to help PDX predict when they should replace their beloved carpet. You’ll do so by predicting the number of travelers who’ll walk across the PDX carpet in any given year. In a file called `carpet.R`, in a folder called `carpet`, write a program to do just that.
+
+## Specifications
+
+In `carpet.R`, your goal is to use R to help PDX predict the number of travelers who will walk across the PDX carpet in a given year.
+
+Provided to you is `visitors.csv`, which documents—between 2002 and 2014—the number of yearly visitors to PDX, in millions.
+
+To predict the number of travelers who will walk across the PDX carpet in a given year, you’ll implement two functions:
+
+-   `calculate_growth_rate`, which will calculate the average yearly increase in visitors that PDX should expect
+
+-   `predict_visitors`, which will predict the number of visitors to PDX in a given year
+
+The rest of the program is already done for you!
+
+## Answer
+
+```{r}
+#Import Data
+visitors <- read.csv("data/PS3/visitors.csv")
+View(visitors)
+```
+
+```{r}
+#Define Functions
+calculate_growth_rate <- function(x, yearcol, countcol) {
+  max_year <- max(x[[yearcol]])
+  min_year <- min(x[[yearcol]])
+  max_count <- x[[countcol]][x[[yearcol]] == max_year]
+  min_count <- x[[countcol]][x[[yearcol]] == min_year]
+  
+  growth_rate <- (max_count - min_count) / (max_year - min_year)
+}
+
+predict_visitors <- function(x, yearcol, countcol, growth_rate, year) {
+  max_year <- max(x[[yearcol]])
+  max_count <- max_count <- x[[countcol]][x[[yearcol]] == max_year]
+  
+  predicted_count <- max_count + growth_rate * (year - max_year)
+}
+```
+
+```{r}
+rate <- calculate_growth_rate(x = visitors, yearcol = "year", countcol = "visitors")
+predicted_visitors <- predict_visitors(x = visitors, yearcol = "year", countcol = "visitors", growth_rate = rate, year = 2024)
+cat(predicted_visitors, "Million")
+```
+
+# Happy
+
+## Problem to Solve
+
+Since 2012, [The World Happiness Report](https://worldhappiness.report/) has sought to understand the state of global happiness and the factors that most influence it. On a country-by-country basis, the report has focused on several factors that tend to increase people’s self-reported happiness: a higher **gross domestic product** (one way of measuring economic prosperity), a higher level of **social support**, a longer **life expectancy**, more **freedom in life choices**, a tendency toward **generosity**, and lower **perceptions of governmental corruption**. Using survey responses from participants in 140+ countries, The World Happiness report generates a happiness “score” for each country.
+
+**To be clear, there’s more to happiness than these scores:** a single number can’t tell the full story of a country’s mood. At the same time, data in The World Happiness Report can reveal inequalities in self-reported happiness to which it may be worth paying attention.
+
+In a program called `happy.R`, in a folder called `happy`, write a program to return a given country’s self-reported happiness “score” out of 10 across multiple years of The World Happiness Report’s data.
+
+## Specifications
+
+As per the [demo](https://cs50.harvard.edu/r/2024/psets/3/happy/#demo), in `happy.R`, write a program that:
+
+-   Prompts the user for a country’s name
+
+-   Outputs, for each year of data:
+
+    -   The country’s total happiness “score,” rounded to two decimal places
+
+    -   The year in which the country achieved that score
+
+If a country is not included in a given year’s data, your program should instead output that data is “unavailable” for that year. Your program should still print data for other years in which there is data available.
+
+## Answer
+
+```{r}
+#Import & Combine Data
+Y2020 <- read.csv("data/PS3/2020.csv")
+Y2021 <- read.csv("data/PS3/2021.csv")
+Y2022 <- read.csv("data/PS3/2022.csv")
+Y2023 <- read.csv("data/PS3/2023.csv")
+Y2024 <- read.csv("data/PS3/2024.csv")
+
+happy <- rbind(Y2020, Y2021, Y2022, Y2023, Y2024)
+View(happy)
+```
+
+```{r}
+
+```
+
+# Variations
+
+## Problem to Solve
+
+In [*The Library of Babel*](https://en.wikipedia.org/wiki/The_Library_of_Babel), a 1941 short story, Jorge Luis Borges imagined an unending library, filled with infinite books whose pages were each random variations of letters. If such a library existed, it would contain everything from your own life story to the ultimate fate of humanity: the only task, of course, would be to find it in the sea of randomness.
+
+Such a library doesn’t exist, but you can approximate it through R! In a program called `variations.R`, in a folder called `variations`, write a program to generate random sequences of the 26 letters, a–z. Maybe you’ll get lucky with a coherent phrase!
+
+## Specifications
+
+In `variations.R`, complete the provided functions, `random_character` and `print_sequence`. Use these functions to write a program that outputs random sequences of the lowercase letters a–z. Your program should:
+
+-   Output 20 character-long sequences.
+
+-   Wait 0.25 seconds between printing each character, to give the appearance of characters being typed.
+
+You might find these functions of use:
+
+-   [`sample`](https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/sample), which “takes a sample of the specified size” from the elements of its first argument.
+
+-   [`Sys.sleep`](https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/Sys.sleep), which can “suspend execution for a specified interval.”
+
+You might also like to know that `letters`, an object built into R, is a vector that includes all 26 lowercase letters a–z!
+
+## [**Usage**](https://cs50.harvard.edu/r/2024/psets/3/variations/#usage)
+
+## Answer
+
+```{r}
+
+```
