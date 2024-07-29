@@ -82,17 +82,33 @@ If a country is not included in a given year’s data, your program should inste
 ```{r}
 #Import & Combine Data
 Y2020 <- read.csv("data/PS3/2020.csv")
+Y2020['year'] <- 2020
 Y2021 <- read.csv("data/PS3/2021.csv")
+Y2021['year'] <- 2021
 Y2022 <- read.csv("data/PS3/2022.csv")
+Y2022['year'] <- 2022
 Y2023 <- read.csv("data/PS3/2023.csv")
+Y2023['year'] <- 2023
 Y2024 <- read.csv("data/PS3/2024.csv")
+Y2024['year'] <- 2024
 
+#Combine and Calculate Score
 happy <- rbind(Y2020, Y2021, Y2022, Y2023, Y2024)
+happy['score'] <- apply(happy[,c(3:8)], MARGIN = 1, FUN = sum)
 View(happy)
 ```
 
 ```{r}
-
+#Get Values, print, etc.
+country <- readline(prompt = "Country: ")
+years <- c(2020:2024)
+for (year in years) {
+  if (year %in% happy$year[happy$country == country]) {
+  print(paste0(country," (",year,"):",format(round(happy$score[happy$country == country & happy$year == year], digits = 2), nsmall = 2)))
+  } else {
+    print(paste0(country," (",year,"): unavailable"))
+  }
+}
 ```
 
 # Variations
@@ -124,5 +140,21 @@ You might also like to know that `letters`, an object built into R, is a vector 
 ## Answer
 
 ```{r}
+random_character <- function(iterations) {
+  values <- c()
+  for (i in 1:iterations) {
+    values[i] <- sample(letters, size = 1)
+  }
+  return(values)
+}
 
+print_sequence <- function(values) {
+  for (letter in values) {
+    print(letter)
+    Sys.sleep(0.25)
+  }
+}
+
+values <- random_character(20)
+print_sequence(values)
 ```
